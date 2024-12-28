@@ -8,11 +8,23 @@
 //win conditions array.every etc.
 
 function Gameboard(){
-    const board = new Array(3).fill(Square());
-    for (let i = 0; i < board.length; i++){
-        board[i] = new Array(3).fill(Square());
-    };
-    
+    // const board = new Array(3);
+    // for (let i = 0; i < board.length; i++){
+    //     board[i] = new Array(3).fill(Square());
+
+    //     //try without fill, duplicating rows
+    // };
+
+    // definitely the fill function.... try something else >.<
+
+    const board = [];
+    for (let i = 0; i < 3; i++) {
+        board[i] = [];
+        for (let j = 0; j < 3; j++) {
+          board[i].push(Square());
+        }
+      }
+
 
     const getBoard = () => board;
 
@@ -20,8 +32,6 @@ function Gameboard(){
         const updateBoard = board.map((row) => row.map((square) => square.getValue()))
         console.log(updateBoard);
     };
-
-
 
 // currently filling whole row with same symbol
 
