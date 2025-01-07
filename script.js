@@ -8,14 +8,6 @@
 //win conditions array.every etc.
 
 function Gameboard(){
-    // const board = new Array(3);
-    // for (let i = 0; i < board.length; i++){
-    //     board[i] = new Array(3).fill(Square());
-
-    //     //try without fill, duplicating rows
-    // };
-
-    // definitely the fill function.... try something else >.<
 
     const board = [];
     for (let i = 0; i < 3; i++) {
@@ -25,27 +17,28 @@ function Gameboard(){
         }
       }
 
-
     const getBoard = () => board;
 
     const printBoard = () =>{
-        const updateBoard = board.map((row) => row.map((square) => square.getValue()))
+        const updateBoard = board.map((row) => row.map((square) => square.getValue()));
         console.log(updateBoard);
     };
 
-// currently filling whole row with same symbol
+    const fullBoard = () =>{
+        let availableSpaces = board.flatMap((row) => row.filter((square) => square.getValue() === ''));
+        if (!availableSpaces.length) {
+            return true;
+        };
+    }
 
     const markSquare = (row, column, player) =>{
         rowIndex = row - 1;
         colIndex = column - 1;
 
-        // console.log(board[rowIndex][colIndex])
-        // if (board[rowIndex][colIndex] != undefined) return;
-
         board[rowIndex][colIndex].addSymbol(player);
     };
 
-    return{getBoard, markSquare, printBoard};
+    return{getBoard, markSquare, printBoard, fullBoard};
 };
 
 function Square(){
@@ -54,10 +47,11 @@ function Square(){
     const addSymbol = (player) =>{
         value = player;
     }
+
     const getValue = () => value;
 
     return {addSymbol, getValue};
-}
+};
 
 function GameController(){
     const board = Gameboard();
@@ -81,20 +75,66 @@ function GameController(){
 
     const getActivePlayer = () => activePlayer;
 
+    /// some are hard coded maybe update
+    const checkWinner = () =>{
+        for (let i = 0; i < 3; i++){
+            if(board.getBoard()[i].every((val) => val.getValue() === getActivePlayer().symbol)){
+                return true;
+            }
+            if(board.getBoard()[0][i].getValue() === getActivePlayer().symbol 
+                && board.getBoard()[1][i].getValue() === getActivePlayer().symbol 
+                && board.getBoard()[2][i].getValue() === getActivePlayer().symbol){
+                return true;
+            }
+            if(board.getBoard()[0][0].getValue() === getActivePlayer().symbol 
+                && board.getBoard()[1][1].getValue() === getActivePlayer().symbol 
+                && board.getBoard()[2][2].getValue() === getActivePlayer().symbol){
+                    return true;
+            }
+            if(board.getBoard()[0][2].getValue() === getActivePlayer().symbol 
+            && board.getBoard()[1][1].getValue() === getActivePlayer().symbol 
+            && board.getBoard()[2][0].getValue() === getActivePlayer().symbol){
+                    return true;
+            }
+        }
+        return false;
+    };
+
     const printNewRound = () =>{
         board.printBoard();
         console.log(`${getActivePlayer().name}'s turn. `);
     };
 
     const playRound = (row, column) =>{
+        if (board.getBoard()[row-1][column-1].getValue() == ""){
         console.log(`${getActivePlayer().name} move into row ${row}, column ${column}.`);
 
         board.markSquare(row, column, getActivePlayer().symbol);
 
+            if (checkWinner()){
+                console.log(`${getActivePlayer().name} is the winner.`)
+                board.printBoard();
+                // add board reset
+                return
+            }
+
         switchPlayerTurn();
         printNewRound();
+
+        }
+        else {
+            console.log('Invalid space. Try again')
+            return
+        };
+        // console.log(board.fullBoard())
+        if(board.fullBoard() === true){
+            console.log("GAME OVER. It's a tie!")
+            // add board reset
+            return
+        };
         };
 
+        //initial game message
         printNewRound();
 
     return{
@@ -104,9 +144,5 @@ function GameController(){
 };
 
 const game = GameController();
-
-
-
-
 
 
