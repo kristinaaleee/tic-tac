@@ -1,12 +1,3 @@
-//gameboard object
-
-//player object
-
-//game flow object
-
-
-//win conditions array.every etc.
-
 function Gameboard(){
 
     const board = [];
@@ -75,7 +66,6 @@ function GameController(){
 
     const getActivePlayer = () => activePlayer;
 
-    /// some are hard coded maybe update
     const checkWinner = () =>{
         for (let i = 0; i < 3; i++){
             if(board.getBoard()[i].every((val) => val.getValue() === getActivePlayer().symbol)){
@@ -139,10 +129,29 @@ function GameController(){
 
     return{
         playRound, 
-        getActivePlayer
+        getActivePlayer,
+        getBoard: board.getBoard
     };
 };
 
-const game = GameController();
+function ScreenController(){
+    const game = GameController();
+    const playerTurn = document.querySelector('.turn')
+    const boardDisplay = document.querySelector('.board')
+
+    const updateScreen = () => {
+        boardDisplay.textContent = '';
+
+        const board = game.getBoard();
+        const activePlayer = game.getActivePlayer();
+
+        playerTurn.textContent = `${activePlayer.name}'s turn..`
+
+        board.forEach(row => {
+            row.forEach()
+        })
+    }
+}
+
 
 
