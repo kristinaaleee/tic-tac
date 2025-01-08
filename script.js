@@ -15,21 +15,18 @@ function Gameboard(){
         console.log(updateBoard);
     };
 
-    const fullBoard = () =>{
-        let availableSpaces = board.flatMap((row) => row.filter((square) => square.getValue() === ''));
-        if (!availableSpaces.length) {
-            return true;
-        };
-    }
+    // const fullBoard = () =>{
+    //     let availableSpaces = board.flatMap((row) => row.filter((square) => square.getValue() === ''));
+    //     if (!availableSpaces.length) {
+    //         return true;
+    //     };
+    // }
 
     const markSquare = (row, column, player) =>{
-        rowIndex = row - 1;
-        colIndex = column - 1;
-
-        board[rowIndex][colIndex].addSymbol(player);
+        board[row][column].addSymbol(player);
     };
 
-    return{getBoard, markSquare, printBoard, fullBoard};
+    return{getBoard, markSquare, printBoard};
 };
 
 function Square(){
@@ -46,6 +43,13 @@ function Square(){
 
 function GameController(){
     const board = Gameboard();
+
+    const fullBoard = () =>{
+        let availableSpaces = board.getBoard().flatMap((row) => row.filter((square) => square.getValue() === ''));
+        if (!availableSpaces.length) {
+            return true;
+        };
+    }
 
     const players = [
         {
@@ -96,7 +100,7 @@ function GameController(){
     };
 
     const playRound = (row, column) =>{
-        if (board.getBoard()[row-1][column-1].getValue() == ""){
+        if (board.getBoard()[row][column].getValue() == ""){
         console.log(`${getActivePlayer().name} move into row ${row}, column ${column}.`);
 
         board.markSquare(row, column, getActivePlayer().symbol);
@@ -116,28 +120,30 @@ function GameController(){
             console.log('Invalid space. Try again')
             return
         };
-        // console.log(board.fullBoard())
-        if(board.fullBoard() === true){
+        if(fullBoard()){
             console.log("GAME OVER. It's a tie!")
-            // add board reset
             return
         };
         };
 
-        //initial game message
         printNewRound();
 
     return{
         playRound, 
         getActivePlayer,
+        checkWinner,
+        fullBoard,
         getBoard: board.getBoard
     };
 };
 
 function ScreenController(){
     const game = GameController();
-    const playerTurn = document.querySelector('.turn')
-    const boardDisplay = document.querySelector('.board')
+    const playerTurn = document.querySelector('.turn');
+    const boardDisplay = document.querySelector('.board');
+    const input = document.querySelectorAll('input');
+
+    //how to add this to alter player names that are previously set
 
     const updateScreen = () => {
         boardDisplay.textContent = '';
@@ -147,11 +153,52 @@ function ScreenController(){
 
         playerTurn.textContent = `${activePlayer.name}'s turn..`
 
-        board.forEach(row => {
-            row.forEach()
+        board.forEach((row, rowIndex) => {
+            row.forEach((square, colIndex) =>{
+
+                const squareButton = document.createElement('button');
+                squareButton.classList.add('square')
+                
+                squareButton.dataset.row = rowIndex;
+                squareButton.dataset.column = colIndex;
+
+                squareButton.textContent = square.getValue();
+                boardDisplay.appendChild(squareButton);
+            })
         })
+
+        if (game.checkWinner()){
+            playerTurn.textContent = `${activePlayer.name} is the winner!`
+            return 'end'
+        }
+
+        if (game.fullBoard()){
+            playerTurn.textContent = `GAME OVER! It's a tie.`
+            return 'end'
+        }
     }
+
+    //event listener for board
+    function clickHandlerBoard(e){
+        const selectedRow = e.target.dataset.row;
+        const selectedColumn = e.target.dataset.column;
+
+        if (!selectedColumn || !selectedRow) return;
+
+        game.playRound(selectedRow, selectedColumn);
+
+        updateScreen();
+        if (updateScreen() === 'end') {
+            boardDisplay.removeEventListener('click', clickHandlerBoard);
+        };
+    }
+
+    boardDisplay.addEventListener('click', clickHandlerBoard);
+
+    updateScreen();
 }
+
+ScreenController();
 
 
 
