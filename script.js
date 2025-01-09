@@ -1,12 +1,15 @@
 function Gameboard(){
 
     const board = [];
+    const newBoard = () => {
     for (let i = 0; i < 3; i++) {
         board[i] = [];
         for (let j = 0; j < 3; j++) {
           board[i].push(Square());
         }
       }
+    }
+    newBoard();
 
     const getBoard = () => board;
 
@@ -26,7 +29,7 @@ function Gameboard(){
         board[row][column].addSymbol(player);
     };
 
-    return{getBoard, markSquare, printBoard};
+    return{getBoard, markSquare, printBoard, newBoard};
 };
 
 function Square(){
@@ -108,7 +111,6 @@ function GameController(){
             if (checkWinner()){
                 console.log(`${getActivePlayer().name} is the winner.`)
                 board.printBoard();
-                // add board reset
                 return
             }
 
@@ -133,7 +135,10 @@ function GameController(){
         getActivePlayer,
         checkWinner,
         fullBoard,
-        getBoard: board.getBoard
+        switchPlayerTurn,
+        getBoard: board.getBoard,
+        newBoard: board.newBoard,
+        players
     };
 };
 
@@ -141,7 +146,10 @@ function ScreenController(){
     const game = GameController();
     const playerTurn = document.querySelector('.turn');
     const boardDisplay = document.querySelector('.board');
+    const resetButton = document.querySelector('.reset');
+    const confirmButton = document.querySelector('.confirm');
     const input = document.querySelectorAll('input');
+    const form = document.querySelector('.form-container')
 
     //how to add this to alter player names that are previously set
 
@@ -194,6 +202,25 @@ function ScreenController(){
     }
 
     boardDisplay.addEventListener('click', clickHandlerBoard);
+
+    resetButton.addEventListener('click', () =>{
+        game.newBoard();
+        if (game.getActivePlayer().symbol != 'X'){
+            game.switchPlayerTurn();
+        }
+        boardDisplay.addEventListener('click', clickHandlerBoard);
+        updateScreen();
+        form.reset();
+    });
+
+    confirmButton.addEventListener('click', () => {
+        const players = game.players;
+
+        players[0].name = input[0].value
+        players[1].name = input[1].value
+
+        updateScreen();
+    })
 
     updateScreen();
 }
